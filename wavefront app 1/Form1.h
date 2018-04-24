@@ -347,6 +347,8 @@ namespace wavefrontapp1 {
 	int target_x = 0;
 	int target_y = 0;
 
+	int freeCells = 0;
+
 
 	/// <summary>
 	/// Summary for Form1
@@ -576,6 +578,7 @@ private: System::Windows::Forms::RadioButton^  radioButton4;
 private: System::Windows::Forms::RadioButton^  radioButton5;
 private: System::Windows::Forms::RadioButton^  radioButton6;
 private: System::Windows::Forms::RadioButton^  radioButton7;
+private: System::Windows::Forms::RadioButton^  radioButton8;
 
 
 private: System::ComponentModel::IContainer^  components;
@@ -789,6 +792,7 @@ private: System::ComponentModel::IContainer^  components;
 			this->label29 = (gcnew System::Windows::Forms::Label());
 			this->label30 = (gcnew System::Windows::Forms::Label());
 			this->clear_array_button = (gcnew System::Windows::Forms::Button());
+			this->radioButton8 = (gcnew System::Windows::Forms::RadioButton());
 			this->groupBox1->SuspendLayout();
 			this->groupBox2->SuspendLayout();
 			this->SuspendLayout();
@@ -2353,6 +2357,7 @@ private: System::ComponentModel::IContainer^  components;
 			// 
 			// groupBox2
 			// 
+			this->groupBox2->Controls->Add(this->radioButton8);
 			this->groupBox2->Controls->Add(this->radioButton7);
 			this->groupBox2->Controls->Add(this->radioButton6);
 			this->groupBox2->Controls->Add(this->radioButton5);
@@ -2728,6 +2733,17 @@ private: System::ComponentModel::IContainer^  components;
 			this->clear_array_button->Text = L"Clear Array";
 			this->clear_array_button->UseVisualStyleBackColor = true;
 			this->clear_array_button->Click += gcnew System::EventHandler(this, &Form1::clear_array_button_Click);
+			// 
+			// radioButton8
+			// 
+			this->radioButton8->AutoSize = true;
+			this->radioButton8->Location = System::Drawing::Point(7, 181);
+			this->radioButton8->Name = L"radioButton8";
+			this->radioButton8->Size = System::Drawing::Size(121, 17);
+			this->radioButton8->TabIndex = 7;
+			this->radioButton8->Text = L"1D array WF8 FASE";
+			this->radioButton8->UseVisualStyleBackColor = true;
+			this->radioButton8->CheckedChanged += gcnew System::EventHandler(this, &Form1::radioButton8_CheckedChanged);
 			// 
 			// Form1
 			// 
@@ -6709,7 +6725,9 @@ private: System::Void radioButton7_CheckedChanged(System::Object^  sender, Syste
 			 algorithmType = 7;
 		 }
 
-
+private: System::Void radioButton8_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+			 algorithmType = 8;
+		 }
 
 
 //the purpose of this is to make sure that there is only one destination
@@ -6967,13 +6985,10 @@ void WavefrontSearch98(unsigned char array1[15][10], int x_size, int y_size)
 
 	int waveStart = 1;
 	bool foundWave = true;
-	bool eastEdge = true;
-	bool westEdge = true;
-	bool northEdge = true;
-	bool southEdge = true;
+	
 
-	int center, north, south, east, west, compair1, compair2;
-	center = north = south = east = west = compair1 = compair2 = 0;
+	int center, north, south, east, west, compare1, compare2;
+	center = north = south = east = west = compare1 = compare2 = 0;
 
 	for (int iterations = 0; iterations < 15; iterations ++)
 	{
@@ -6982,6 +6997,10 @@ void WavefrontSearch98(unsigned char array1[15][10], int x_size, int y_size)
 		{
 			for(int x=0; x < x_size; x++)
 			{
+				bool eastEdge = true;
+				bool westEdge = true;
+				bool northEdge = true;
+				bool southEdge = true;
 
 				if (y - 1 < 0)
 				{
@@ -7063,8 +7082,8 @@ void WavefrontSearch98(unsigned char array1[15][10], int x_size, int y_size)
 
 					
 
-					//compair1 = max(north, south);
-					//compair2 = max(east, west);
+					//compare1 = max(north, south);
+					//compare2 = max(east, west);
 					//center = 1 + (max(compair1, compair2));
 					//array1[x][y] = center;
 
@@ -7136,6 +7155,173 @@ void WavefrontSearch2(unsigned char array1[15][10], int x_size, int y_size)
 	}//end while
 }
 
+
+
+void countNumberofFreeCells(unsigned char array2[150], int x_size, int y_size)
+{
+	//freeCells
+	int arraysize = x_size * y_size;
+	freeCells = arraysize;
+
+	for(int arrayCounter=0; arrayCounter < arraysize; arrayCounter++)
+	{
+		if (array2[arrayCounter] > 0)
+			freeCells --;
+	}
+
+	/*MessageBox::Show(
+		String::Format("freeCells = {0}", freeCells ),
+		"Array 2",
+		MessageBoxButtons::OK, MessageBoxIcon::Information);*/
+
+
+}
+
+
+void WavefrontSearch8(unsigned char array2[150], int x_size, int y_size)
+{
+	unsigned char currentWave = 1; //Looking for goal first
+	int arraysize = x_size * y_size;
+	int x = 0;
+	int y = 0;
+
+	int totalNumberofEmptyCells = freeCells;
+	//keep running count of empty cells
+	//start at 150
+	//if any cells are empty
+
+	int index, north, south, east, west;
+	unsigned char centerValue, northValue, southValue, eastValue, westValue;
+
+	/*MessageBox::Show(
+				String::Format("arraysize = {0}\n x_size= {1}\n info= {2}", arraysize,x_size,y_size ),
+				"Array 2",
+				MessageBoxButtons::OK, MessageBoxIcon::Information);*/
+	/*MessageBox::Show(
+		String::Format("totalNumberofEmptyCells = {0}", totalNumberofEmptyCells ),
+		"Array 2",
+		MessageBoxButtons::OK, MessageBoxIcon::Information);*/
+
+
+	while (totalNumberofEmptyCells > 1)//poor way to count if we do not know how many free cells there are
+	{
+		for(int arrayCounter=0; arrayCounter < arraysize; arrayCounter++)
+		{
+			index = x + x_size * y;
+			north = x + x_size * (y - 1);
+			south = x + x_size * (y + 1);
+			east = x + 1 + x_size * y;
+			west = x - 1 + x_size * y;
+
+			if(x == x_size)
+			{
+				x = 0;//set to first column
+				y++;//move down a row
+			}
+			if(y == y_size)
+			{
+				y = 0;//set to first row
+				x = 0;//set to first column
+			}
+
+			//control borders of array
+			if (y < 1)
+				north = index;			
+			if (y > (y_size - 2))
+				south = index;
+			if (x > x_size - 2)
+				east = index;			
+			if (x < 1)
+				west = index;
+			//control borders of array
+
+			centerValue = array2[index];
+			northValue = array2[north];
+			southValue = array2[south];
+			eastValue = array2[east];
+			westValue = array2[west];
+			unsigned char compare1 = 0;
+			unsigned char compare2 = 0;
+			unsigned char compare3 = 0;
+			
+			//array2[centerValue
+			/*MessageBox::Show(
+				String::Format("array_x= {0}\n array_y= {1}\n\n info= {2}\n\n\n north = {3}\n south = {4}\n west = {5}\n east = {6}",
+				x,y,centerValue, northValue, southValue, westValue, eastValue ),
+				"Array 2",
+				MessageBoxButtons::OK, MessageBoxIcon::Information);*/
+
+			//the idea is to see if there are any numbers in the north, south, east or west of the center of the kernel 
+			// other than 0 or 255
+			// if there is a number in the center of the kernel, move the kernel over 1
+			// if there are are any numbers in the north, south, east or west, 
+			// then find the smallest of the number(s) of the kernel, add 1 and place it in the center.
+
+			//if ((centerValue == 0) || (northValue > 0) && (southValue > 0) && (eastValue > 0) && (westValue > 0))//if (westValue > 0 && westValue < 255)
+
+			//some quick cheats to make sure that we don't try to include a 0 in the min compare
+			if (northValue == 0)
+				northValue = 255;
+			if (southValue == 0)
+				southValue = 255;
+			if (eastValue == 0)
+				eastValue = 255;
+			if (westValue == 0)
+				westValue = 255;
+
+
+			if (centerValue == 0)
+			{
+				// there is a number in the kernel more than 0
+				// and the centerValue is empty
+				// meaning we are looking for a waveValue of some sort or another
+
+
+				//Now lets find the smallest
+				compare1 = min(northValue, southValue);
+				compare2 = min(eastValue, westValue);
+				compare3 = min(compare1, compare2);
+
+				//reject a 255 as smallest and assign the smallest as 0
+				if (compare3 == 255)
+					compare3 = 0;
+
+				if (compare3 > 0)
+				{
+					array2[index] = compare3 + 1;
+					totalNumberofEmptyCells --;
+				}
+				/*MessageBox::Show(
+					String::Format("array_x= {0}\n array_y= {1}\n\n info= {2}\n\n\n north = {3}\n south = {4}\n west = {5}\n east = {6}\n\n smallest Value = {7}",
+					x,y,centerValue, northValue, southValue, westValue, eastValue, compare3 ),
+					"Array 2",
+					MessageBoxButtons::OK, MessageBoxIcon::Information);*/
+
+				
+			}
+			x++;// move over a column
+		}//end arrayCounter look
+
+
+	}//end while loop
+
+
+	x=y=0;
+	index = x + x_size * y;
+	south = x + x_size * (y + 1);
+	east = x + 1 + x_size * y;
+	centerValue = array2[index];
+	southValue = array2[south];
+	eastValue = array2[east];
+
+	if (centerValue == 0)
+	{
+		unsigned char compare = min(southValue, eastValue);
+		array2[index] = compare + 1;
+	}
+
+
+}
 
 
 
@@ -7513,6 +7699,11 @@ private: System::Void buttonTest_Click(System::Object^  sender, System::EventArg
 			 {
 				 lookForGoal2(array2, x_size, y_size);
 			 }
+
+			 if (algorithmType == 8)
+			 {
+				 lookForGoal2(array2, x_size, y_size);
+			 }
 			 
 
 			 
@@ -7589,6 +7780,17 @@ private: System::Void buttonTest_Click(System::Object^  sender, System::EventArg
 					 QueryPerformanceFrequency(&Frequency); 
 					 QueryPerformanceCounter(&StartingTime);
 					 WavefrontSearch7(array2, x_size, y_size, target_x, target_y);
+					 QueryPerformanceCounter(&EndingTime);
+					 ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
+				 }
+
+				 if (algorithmType == 8)
+				 {
+					 countNumberofFreeCells(array2, x_size, y_size);
+
+					 QueryPerformanceFrequency(&Frequency); 
+					 QueryPerformanceCounter(&StartingTime);
+					 WavefrontSearch8(array2, x_size, y_size);
 					 QueryPerformanceCounter(&EndingTime);
 					 ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
 				 }
@@ -8463,6 +8665,7 @@ private: System::Void clear_array_button_Click(System::Object^  sender, System::
 		}
 	
 }
+
 
 
 
